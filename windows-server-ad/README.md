@@ -4,7 +4,7 @@
 
 This section documents the Windows Server and Active Directory portion of the Hybrid Enterprise IT Support & Systems Administration Lab.
 
-The goal is to simulate a traditional business directory environment for BlancoTech Solutions and demonstrate hands-on administration of Active Directory Domain Services, DNS, organizational units, users, groups, and access-control structure.
+The goal is to simulate a traditional business directory environment for BlancoTech Solutions and demonstrate hands-on administration of Active Directory Domain Services, DNS, organizational units, users, groups, access-control structure, password policy, account lockout policy, and Group Policy Objects.
 
 ## Environment
 
@@ -164,6 +164,127 @@ PowerShell was used to verify group membership counts.
 | GLPI-Technicians | 2 |
 | M365-Helpdesk | 1 |
 
+## Password and Account Lockout Policy
+
+The default domain password policy was configured for BlancoTech users.
+
+| Setting | Value |
+|---|---:|
+| Minimum password length | 12 characters |
+| Password complexity | Enabled |
+| Password history | 10 passwords remembered |
+| Maximum password age | 90 days |
+| Minimum password age | 1 day |
+| Account lockout threshold | 5 failed attempts |
+| Lockout duration | 15 minutes |
+| Lockout observation window | 15 minutes |
+| Reversible encryption | Disabled |
+
+Validation command used:
+
+    Get-ADDefaultDomainPasswordPolicy
+
+Screenshot:
+
+![Password and Account Lockout Policy](../screenshots/gpo-password-policy.png)
+
+## Group Policy Objects
+
+Three Group Policy Objects were created and linked to the BlancoTech `Users` OU.
+
+| GPO | Purpose |
+|---|---|
+| GPO - User Screen Lock Policy | Locks user sessions after 15 minutes of inactivity |
+| GPO - Block USB Storage | Blocks access to removable storage devices |
+| GPO - Map Company Drive | Maps a shared company drive for users |
+
+Validation command used:
+
+    Get-GPO -All | Select-Object DisplayName, GpoStatus | Sort-Object DisplayName
+
+Screenshot:
+
+![GPO List](../screenshots/gpo-list.png)
+
+## Linked GPOs
+
+The GPOs were linked to:
+
+    OU=Users,OU=BlancoTech,DC=blancotech,DC=local
+
+Screenshot:
+
+![Linked GPOs on Users OU](../screenshots/gpo-linked-users-ou.png)
+
+## Screen Lock Policy
+
+The screen lock GPO was configured under:
+
+    User Configuration
+    └── Policies
+        └── Administrative Templates
+            └── Control Panel
+                └── Personalization
+
+Configured settings:
+
+| Setting | Value |
+|---|---|
+| Enable screen saver | Enabled |
+| Password protect the screen saver | Enabled |
+| Screen saver timeout | 900 seconds |
+
+Screenshot:
+
+![Screen Lock GPO Settings](../screenshots/gpo-screen-lock-settings.png)
+
+## USB Storage Restriction Policy
+
+The USB storage restriction GPO was configured under:
+
+    User Configuration
+    └── Policies
+        └── Administrative Templates
+            └── System
+                └── Removable Storage Access
+
+Configured setting:
+
+| Setting | Value |
+|---|---|
+| All Removable Storage classes: Deny all access | Enabled |
+
+This blocks users from reading from or writing to removable storage devices such as USB flash drives and external USB hard drives.
+
+Screenshot:
+
+![USB Block GPO Settings](../screenshots/gpo-usb-block-settings.png)
+
+## Mapped Drive Policy
+
+A shared company folder was created and mapped to users through Group Policy Preferences.
+
+Shared folder:
+
+    C:\Shares\Company
+
+Network path:
+
+    \\vm-bt-dc01\Company
+
+Mapped drive configuration:
+
+| Setting | Value |
+|---|---|
+| Drive letter | S: |
+| Location | \\vm-bt-dc01\Company |
+| Label | Company Drive |
+| Reconnect | Enabled |
+
+Screenshot:
+
+![Mapped Drive GPO Settings](../screenshots/gpo-mapped-drive-settings.png)
+
 ## Skills Demonstrated
 
 - Azure Windows Server VM deployment
@@ -177,14 +298,19 @@ PowerShell was used to verify group membership counts.
 - Group-based access control
 - PowerShell-based user creation
 - PowerShell-based validation
+- Default domain password policy configuration
+- Account lockout policy configuration
+- Group Policy Object creation and linking
+- Screen lock enforcement through GPO
+- Removable storage restriction through GPO
+- Mapped drive deployment through Group Policy Preferences
+- SMB share creation for company drive mapping
 - Screenshot-backed technical documentation
 
 ## Next Improvements
 
 Planned additions:
 
-- Group Policy Objects
-- Password and account lockout policy
 - DNS/DHCP documentation
 - Delegated password reset permissions
 - AD security audit findings
