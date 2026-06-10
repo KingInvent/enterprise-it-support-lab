@@ -144,8 +144,8 @@ Exports a full Active Directory user inventory report.
 - AD user reporting
 - CSV export
 - HTML report generation
-- stale account detection
-- password/account status review
+- Stale account detection
+- Password/account status review
 - PowerShell calculated properties
 
 ## 4. Get-GroupMembershipReport.ps1
@@ -186,10 +186,10 @@ Exports Active Directory group membership reports for access review.
 ### Skills Demonstrated
 
 - AD group membership auditing
-- access-control review
-- recursive membership lookup
+- Access-control review
+- Recursive membership lookup
 - CSV and HTML reporting
-- disabled account detection in groups
+- Disabled account detection in groups
 
 ## 5. Find-LockedOutUsers.ps1
 
@@ -230,8 +230,8 @@ Finds locked-out Active Directory users and optionally unlocks them.
 ### Skills Demonstrated
 
 - Help Desk account troubleshooting
-- account lockout investigation
-- account unlock remediation
+- Account lockout investigation
+- Account unlock remediation
 - CSV and HTML reporting
 - PowerShell conditional execution
 
@@ -278,44 +278,209 @@ Runs basic network connectivity diagnostics for IT support troubleshooting.
 
 ### Skills Demonstrated
 
-- network troubleshooting
+- Network troubleshooting
 - DNS testing
 - TCP port testing
-- gateway validation
-- endpoint diagnostics
+- Gateway validation
+- Endpoint diagnostics
 - CSV and HTML reporting
 
 ## Testing Plan
 
-The scripts will be tested on the Windows Server domain controller:
+The scripts were tested on the Windows Server domain controller:
 
     vm-bt-dc01
 
-Testing will validate:
+Testing validated:
 
-- new user creation
-- group membership assignment
+- New user creation
+- Group membership assignment
 - AD user reporting
-- group membership reporting
-- locked-out user checks
-- network connectivity diagnostics
+- Group membership reporting
+- Locked-out user checks
+- Network connectivity diagnostics
 - CSV and HTML report generation
-- log file creation
+- Log file creation
 
-## Planned Screenshots
+## Validation Results
 
-The following screenshots will be added after VM testing:
+All six PowerShell scripts were tested successfully on the Windows Server domain controller `vm-bt-dc01` against the `blancotech.local` Active Directory environment.
 
-| Screenshot | Purpose |
+## Tested Scripts
+
+| Script | Validation Result |
 |---|---|
-| powershell-newhire-script-success.png | New hire script successful execution |
-| powershell-newhire-user-validation.png | AD validation of created user |
-| powershell-newhire-group-validation.png | Group membership validation |
-| powershell-offboarding-success.png | Offboarding script successful execution |
-| powershell-user-report-output.png | AD user report output |
-| powershell-group-report-output.png | Group membership report output |
-| powershell-lockedout-output.png | Locked-out user script output |
-| powershell-network-test-output.png | Network connectivity script output |
+| Test-NetworkConnectivity.ps1 | Successfully tested DNS resolution, ping, TCP port 53, local IP configuration, and report generation |
+| Export-ADUserReport.ps1 | Successfully exported 15 AD users to CSV and HTML reports |
+| Get-GroupMembershipReport.ps1 | Successfully reviewed 12 groups, 49 membership rows, and 15 unique user members |
+| Find-LockedOutUsers.ps1 | Successfully checked locked-out users and generated CSV/HTML reports |
+| Create-NewHireUser.ps1 | Successfully created test user `cmendez` in the Sales OU with correct groups and manager assignment |
+| Disable-OffboardedUser.ps1 | Successfully disabled `cmendez`, removed group memberships, cleared manager, updated description, and moved account to Disabled Users OU |
+
+## Network Connectivity Validation
+
+The network connectivity script confirmed:
+
+- Local IPv4 address: `10.0.0.4`
+- Active interface: `Ethernet`
+- Domain DNS resolution: `blancotech.local` resolved to `10.0.0.4`
+- Ping to `blancotech.local`: successful
+- TCP port 53 test: successful
+- CSV report generated
+- HTML report generated
+- Log file generated
+
+Note: Default gateway ping to `10.0.0.1` failed, which is acceptable in this Azure lab because Azure gateway endpoints may not respond to ICMP. DNS resolution and TCP connectivity were successful.
+
+Screenshot:
+
+![PowerShell Network Test Output](../screenshots/powershell-network-test-output.png)
+
+## AD User Report Validation
+
+The AD user report script successfully exported user inventory data.
+
+Results:
+
+| Metric | Result |
+|---|---:|
+| Total users | 15 |
+| Enabled users | 15 |
+| Disabled users | 0 |
+| Stale users | 15 |
+| Locked-out users | 0 |
+| Password never expires | 0 |
+
+The 15 stale users result is expected because the lab users have not logged in interactively.
+
+Screenshots:
+
+![PowerShell User Report Output 1](../screenshots/powershell-user-report-output-1.png)
+
+![PowerShell User Report Output 2](../screenshots/powershell-user-report-output-2.png)
+
+## Group Membership Report Validation
+
+The group membership report script successfully exported group membership data.
+
+Results:
+
+| Metric | Result |
+|---|---:|
+| Groups reviewed | 12 |
+| Report rows | 49 |
+| Unique user members | 15 |
+| Disabled user members | 0 |
+| Empty groups | 0 |
+
+Screenshots:
+
+![PowerShell Group Report Output 1](../screenshots/powershell-group-report-output-1.png)
+
+![PowerShell Group Report Output 2](../screenshots/powershell-group-report-output-2.png)
+
+## Locked-Out User Check Validation
+
+The locked-out user script successfully checked Active Directory for locked-out accounts.
+
+Results:
+
+| Metric | Result |
+|---|---:|
+| Locked-out accounts | 0 |
+| CSV report generated | Yes |
+| HTML report generated | Yes |
+| Log file generated | Yes |
+
+A result of zero locked-out users is expected in a healthy lab environment.
+
+Screenshot:
+
+![PowerShell Locked-Out User Output](../screenshots/powershell-lockedout-output.png)
+
+## New Hire Automation Validation
+
+The new hire script successfully created a test user.
+
+Test user:
+
+| Field | Value |
+|---|---|
+| Name | Carlos Mendez |
+| SamAccountName | cmendez |
+| UPN | cmendez@blancotech.local |
+| Department | Sales |
+| Job Title | Sales Representative |
+| OU | OU=Sales,OU=Users,OU=BlancoTech,DC=blancotech,DC=local |
+| Manager | mgonzalez |
+| Password change at next logon | True |
+
+Assigned groups:
+
+- All-Employees
+- Domain Users
+- Sales-Users
+- VPN-Users
+
+Screenshots:
+
+![PowerShell New Hire Script Success](../screenshots/powershell-newhire-script-success.png)
+
+![PowerShell New Hire User Validation](../screenshots/powershell-newhire-user-validation.png)
+
+![PowerShell New Hire Group Validation](../screenshots/powershell-newhire-group-validation.png)
+
+## Offboarding Automation Validation
+
+The offboarding script successfully offboarded the test user `cmendez`.
+
+Actions validated:
+
+- Account disabled
+- Removed from `All-Employees`
+- Removed from `Sales-Users`
+- Removed from `VPN-Users`
+- Manager attribute cleared
+- Description updated with reason and ticket number
+- User moved to Disabled Users OU
+- Remaining group: `Domain Users`
+
+Offboarding details:
+
+| Field | Value |
+|---|---|
+| User | Carlos Mendez |
+| SamAccountName | cmendez |
+| Reason | Resignation |
+| Ticket | INC-1007 |
+| Enabled | False |
+| Final OU | OU=Disabled Users,OU=BlancoTech,DC=blancotech,DC=local |
+| Remaining group | Domain Users |
+
+Screenshots:
+
+![PowerShell Offboarding Success](../screenshots/powershell-offboarding-success.png)
+
+![PowerShell Offboarding User Validation](../screenshots/powershell-offboarding-user-validation.png)
+
+![PowerShell Offboarding Group Validation](../screenshots/powershell-offboarding-group-validation.png)
+
+## Final PowerShell Validation Summary
+
+The PowerShell automation phase demonstrates:
+
+- AD user provisioning
+- AD user offboarding
+- Group membership assignment
+- Group membership cleanup
+- AD reporting
+- Access review reporting
+- Locked-out account checks
+- Network troubleshooting
+- CSV report generation
+- HTML report generation
+- Logging
+- Screenshot-backed validation
 
 ## Notes
 
@@ -323,11 +488,11 @@ These scripts are built for a lab environment and should be reviewed before prod
 
 Production use would require additional controls such as:
 
-- delegated least-privilege permissions
-- approval workflow integration
-- stronger error handling
-- transcript logging
-- change ticket validation
-- secure credential handling
-- code signing
-- source-controlled release process
+- Delegated least-privilege permissions
+- Approval workflow integration
+- Stronger error handling
+- Transcript logging
+- Change ticket validation
+- Secure credential handling
+- Code signing
+- Source-controlled release process
