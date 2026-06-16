@@ -1,0 +1,3 @@
+
+# Local GLPI Docker environment
+glpi-ticketing/docker/.env
