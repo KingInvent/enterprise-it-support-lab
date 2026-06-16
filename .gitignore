@@ -1,3 +1,6 @@
 
 # Local GLPI Docker environment
 glpi-ticketing/docker/.env
+
+# macOS
+.DS_Store
